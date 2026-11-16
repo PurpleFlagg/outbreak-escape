@@ -240,7 +240,7 @@ const shuffle = a => { const b = a.slice(); for (let i = b.length - 1; i > 0; i-
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 /* Tech+ edition: 15 minutes, small penalty, free hints */
-const DURATION = 900, WRONG_COST = 10, HINT_COST = 0;
+const DURATION = 600, WRONG_COST = 10, HINT_COST = 0;
 const state = { mode:'solo', team:'', elapsed:0, penalty:0, idx:0, solved:[], hintsUsed:0, wrong:0, hintsShown:{}, timer:null, paused:false, clockOff:false, lastLevel:0 };
 
 /* ---------- The door ---------- */
@@ -631,7 +631,7 @@ window.addEventListener('hashchange', () => {
   const w = $$('.wrap').pop(); if (w && location.hash === '#host') w.insertAdjacentHTML('beforeend', hostHtml());
 });
 
-const UI = { edition:'Tech+ Edition', minutes:15, modes:true,
+const UI = { edition:'Tech+ Edition', minutes:10, modes:true,
   icons:['monitor','lock','shield','binary','hook'],
   labels:['Computing cycle','Passwords','Privacy & encryption','Binary','Spotting scams'],
   rules:['Every lock uses what you’ve learned in Tech+.', `Wrong answers make the zombies surge and cost ${WRONG_COST} seconds.`, 'Hints are free, so use them!', 'Play solo and race the class, or as one team on the big screen.'] };
