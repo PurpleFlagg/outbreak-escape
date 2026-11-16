@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Outbreak: IT Room, a Zombie IT Escape Room</title>
+<title>Outbreak: IT Room, Technician Edition</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Chakra+Petch:wght@500;600;700&family=Creepster&display=swap" rel="stylesheet">
@@ -212,6 +212,7 @@ h2{font-family:var(--ui);font-weight:700;font-size:clamp(1.45rem,4.2vw,2.1rem);l
 .overlay .panel{max-width:540px;border-color:var(--red);box-shadow:0 0 40px rgba(229,57,53,.45);margin:0}
 .overlay h2{font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:clamp(2.2rem,8vw,3.4rem);color:var(--red);margin:0 0 .2em;text-shadow:0 0 14px rgba(229,57,53,.6)}
 .row{display:flex;gap:12px;flex-wrap:wrap}
+.legal{max-width:640px;margin:2em auto 0;text-align:center;font-size:12px;line-height:1.5;color:#7f8c85}
 .host{margin-top:28px;text-align:left}
 .host summary{cursor:pointer;font-weight:700}
 .host ol{padding-left:1.3em}
@@ -658,7 +659,7 @@ function submitResult(sec){
   if (!FORM_URL) return;
   sec = Math.max(0, Math.round(sec));
   const time = `${String(Math.floor(sec/60)).padStart(2,'0')}:${String(sec%60).padStart(2,'0')}`;
-  const body = new URLSearchParams({ [FIELDS.team]: state.team || 'Unnamed player', [FIELDS.time]: time, [FIELDS.hints]: String(state.hintsUsed), [FIELDS.surges]: String(state.wrong) });
+  const body = new URLSearchParams({ [FIELDS.team]: '[Technician] ' + (state.team || 'Unnamed player'), [FIELDS.time]: time, [FIELDS.hints]: String(state.hintsUsed), [FIELDS.surges]: String(state.wrong) });
   try { fetch(FORM_URL, { method:'POST', mode:'no-cors', body }).catch(()=>{}); } catch(e) {}
 }
 
@@ -668,7 +669,7 @@ window.addEventListener('hashchange', () => {
   const w = $$('.wrap').pop(); if (w && location.hash === '#host') w.insertAdjacentHTML('beforeend', hostHtml());
 });
 
-const UI = { edition:'A+ Edition', minutes:10, modes:false,
+const UI = { edition:'Technician Edition', minutes:10, modes:false,
   icons:['cpu','port','wrench','binary','shield'],
   labels:['Hardware','Ports','Trouble&shy;shooting','Networking','Security'],
   rules:['These locks are tougher: hardware, ports, help desk tickets, binary IP addresses, and attack types.', `Wrong answers make the zombies surge and cost ${WRONG_COST} seconds. Hints cost a full minute.`, 'Play solo or work together as a team.'] };
@@ -790,7 +791,7 @@ function renderIntro(){
       </div>
     </div>
   </section>
-  <div class="wrap">${hostHtml()}</div>`;
+  <div class="wrap">${hostHtml()}<p class="legal">Not affiliated with or endorsed by CompTIA. CompTIA, A+, and Tech+ are trademarks of CompTIA.</p></div>`;
   bindSound();
   $$('input[name="mode"]').forEach(r => r.onchange = () => {
     state.mode = r.value;
@@ -869,6 +870,7 @@ function renderWin(){
       ${solo ? '<p class="time-note"><b>Hold up your phone to show your time.</b> Fastest escape in the class wins!</p>' : ''}
       <div class="go-row"><button class="btn go" id="again">Play again</button></div>
       ${hostHtml()}
+      <p class="legal">Not affiliated with or endorsed by CompTIA. CompTIA, A+, and Tech+ are trademarks of CompTIA.</p>
     </div>
   </section>`;
   $('#again').onclick = renderIntro;
