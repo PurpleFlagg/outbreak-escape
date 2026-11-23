@@ -121,16 +121,26 @@ Some of that speed comes from knowing the puzzles by the second or third try. So
 
 ## Updates since the talk
 
-- [x] Rename the editions to **Rookie** (the Tech+ version) and **Technician** (the A+ version), and add a CompTIA trademark notice
-- [x] Shorten the Rookie clock to 10 minutes
-- [x] Make Rookie hints cost 30 seconds, so players think before they ask (Technician hints still cost a minute)
-- [x] Log when a run *starts*, not only when it finishes, so I can see how many players finish. Start rows carry no name, so they never show on the leaderboard.
-- [x] Add an optional class code, typed on the start screen or built into the QR link (for example `rookie.html?class=FHS2`), plus a Class Leaderboard tab that ranks one class at a time, so results from different talks don't mix
-- [x] Record which lock each wrong answer happened on, to see which skills students find hardest
+After the talk I worked through the gaps the data showed, plus a few changes to how the game plays.
+
+**Game changes**
+
+- [x] Renamed the editions to **Rookie** (the Tech+ version, `rookie.html`) and **Technician** (the A+ version, `index.html`), and added a CompTIA trademark notice. The old `techplus.html` link now redirects to Rookie.
+- [x] Shortened the Rookie clock from 15 to 10 minutes.
+- [x] Rookie hints now cost 30 seconds instead of being free, so players think before they ask. The start screen rules and the hint button both say so. Technician hints still cost a full minute.
+- [x] Added an optional **class code** box to the start screen of both editions. A host can also build the code into the QR link (for example `rookie.html?class=FHS2`), so players never have to type it. Runs without a code are logged as "none". "Play again" keeps the code.
+
+**Data changes**
+
+- [x] Both editions now log when a run **starts**, not only when it finishes, so I can see how many players finish. Start rows carry no name, so they never show on the leaderboard.
+- [x] Every run gets a random **run ID**, sent with both its start row and its finish row, so the two can be matched up.
+- [x] Both editions record **which lock each wrong answer happened on**, as five numbers for locks 1 to 5 (for example `1,0,0,2,0`), to see which skills students find hardest.
+- [x] Added four questions to the results Google Form: Event, Run ID, Class code and Wrong answers per lock.
+- [x] Added a **Class Leaderboard** tab to the Google Sheet. Pick a class code from a dropdown and it ranks only that class, so results from different talks don't mix. The main leaderboard still shows everyone.
 
 ## Built with
 
-HTML, CSS and JavaScript in a single page, hosted on GitHub Pages · Google Forms and Google Sheets for the leaderboard · a QR code for scan-to-play
+HTML, CSS and JavaScript in a single page per edition, hosted on GitHub Pages · Google Forms and Google Sheets for the leaderboard, class leaderboard and run log · a QR code for scan-to-play
 
 ---
 
