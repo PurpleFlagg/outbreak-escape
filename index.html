@@ -99,6 +99,7 @@ h1{font-size:clamp(2.5rem,11.5vw,6rem);line-height:.95;margin:0;text-wrap:balanc
 .setup label.field{display:grid;gap:6px;font-family:var(--ui);font-weight:700}
 .setup input[type=text]{min-height:48px;padding:.55em .8em;border-radius:10px;border:2px solid var(--line);background:var(--panel);font-size:17px}
 .setup input[type=text]:focus{border-color:var(--green)}
+.setup label.field small{color:var(--muted);font-weight:500}
 .err{color:#ff8a80;font-weight:700;margin:0;min-height:1.3em}
 .mode{border:0;padding:0;margin:0;display:grid;gap:10px}
 .mode legend{font-family:var(--ui);font-weight:700;padding:0;margin-bottom:6px}
@@ -240,7 +241,7 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>'
 const shuffle = a => { const b = a.slice(); for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; };
 
 const DURATION = 600, WRONG_COST = 15, HINT_COST = 60;
-const state = { mode:'solo', team:'', elapsed:0, penalty:0, idx:0, solved:[], hintsUsed:0, wrong:0, hintsShown:{}, timer:null, paused:false, clockOff:false };
+const state = { mode:'solo', team:'', elapsed:0, penalty:0, idx:0, solved:[], hintsUsed:0, wrong:0, hintsShown:{}, runId:'', classCode:'', wrongByLock:[], timer:null, paused:false, clockOff:false };
 
 /* ---------- The door ---------- */
 function sceneSvg(){
@@ -613,6 +614,7 @@ function refreshClock(){
 }
 function wrong(msg){
   state.wrong++;
+  state.wrongByLock[state.idx] = (state.wrongByLock[state.idx] || 0) + 1;
   if (!state.clockOff) state.penalty += WRONG_COST;
   fb(msg + (state.clockOff ? '' : ` (−${WRONG_COST} seconds)`), 'bad');
   surge(); refreshClock();
@@ -654,13 +656,32 @@ function hostHtml(){
 
 /* Leaderboard hookup: add a Google Form's formResponse URL and field IDs to turn this on. */
 const FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSekzxrNDtjrOh6Ur84xWP48dQyMm4WH9aPcEdiGeF3zHoA6kg/formResponse';
-const FIELDS = { team:'entry.930780214', time:'entry.1417165640', hints:'entry.38312738', surges:'entry.1019665911' };
+const FIELDS = { team:'entry.930780214', time:'entry.1417165640', hints:'entry.38312738', surges:'entry.1019665911',
+  /* New Form questions for run tracking. Paste each question's entry ID here once it exists in the Form.
+     While an ID is blank, that detail is simply not sent, and the leaderboard works exactly as before. */
+  event:'entry.1153423292', run:'entry.66973054', code:'entry.267349985', locks:'entry.2115603529' };
+/* Optional class or session code: typed on the start screen, or set by a link like rookie.html?class=FHS1 */
+const cleanCode = v => String(v || '').toUpperCase().replace(/[^A-Z0-9-]/g, '').slice(0, 20);
+const URL_CODE = (() => { try { const q = new URLSearchParams(location.search); return cleanCode(q.get('class') || q.get('code')); } catch(e) { return ''; } })();
+function newRunId(){ const c = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let id = ''; for (let i = 0; i < 8; i++) id += c[Math.floor(Math.random() * c.length)]; return id; }
+function postForm(data){
+  if (!FORM_URL) return;
+  const body = new URLSearchParams();
+  Object.entries(data).forEach(([k, v]) => { if (FIELDS[k] && v !== undefined && v !== '') body.append(FIELDS[k], v); });
+  try { fetch(FORM_URL, { method:'POST', mode:'no-cors', body }).catch(()=>{}); } catch(e) {}
+}
+/* Logs that a run started. No name is sent, so a start never shows up on the leaderboard. */
+function logStart(){
+  if (!FIELDS.event) return;
+  postForm({ event:'Start: ' + runLabel(), run:state.runId, code:state.classCode || 'none' });
+}
+function runLabel(){ return 'Technician'; }
 function submitResult(sec){
   if (!FORM_URL) return;
   sec = Math.max(0, Math.round(sec));
   const time = `${String(Math.floor(sec/60)).padStart(2,'0')}:${String(sec%60).padStart(2,'0')}`;
   const body = new URLSearchParams({ [FIELDS.team]: '[Technician] ' + (state.team || 'Unnamed player'), [FIELDS.time]: time, [FIELDS.hints]: String(state.hintsUsed), [FIELDS.surges]: String(state.wrong) });
-  try { fetch(FORM_URL, { method:'POST', mode:'no-cors', body }).catch(()=>{}); } catch(e) {}
+  postForm({ team:body.get(FIELDS.team), time, hints:String(state.hintsUsed), surges:String(state.wrong), event:'Finish: ' + runLabel(), run:state.runId, code:state.classCode || 'none', locks:PUZZLES.map((p,i) => state.wrongByLock[i] || 0).join(',') });
 }
 
 
@@ -759,7 +780,7 @@ function bindSound(){ const b = $('#snd'); if (!b) return; b.onclick = () => { S
 
 function hintsHtml(){
   const p = PUZZLES[state.idx], shown = state.hintsShown[state.idx] || 0;
-  const cost = (state.clockOff || !HINT_COST) ? ' (free)' : ' (costs 1 minute)';
+  const cost = (state.clockOff || !HINT_COST) ? ' (free)' : ` (costs ${HINT_COST % 60 ? HINT_COST + ' seconds' : HINT_COST / 60 === 1 ? '1 minute' : HINT_COST / 60 + ' minutes'})`;
   return `${shown < p.hints.length ? `<button class="btn ghost" id="hint">Get a hint${cost}</button>` : '<p style="margin:0;color:var(--muted)">No more hints for this lock.</p>'}
     ${shown ? `<ul>${p.hints.slice(0,shown).map(h=>`<li>${h}</li>`).join('')}</ul>` : ''}`;
 }
@@ -786,6 +807,8 @@ function renderIntro(){
         <label class="field"><span id="namelbl">${UI.modes ? (solo ? 'Your name' : 'Team name') : 'Team or player name'}</span>
           <input type="text" id="team" maxlength="30" placeholder="${UI.modes && solo ? 'First name' : 'The Last Admins'}" value="${esc(state.team)}"></label>
         <p class="err" id="nameerr" role="alert"></p>
+        <label class="field"><span>Class code <small>(optional)</small></span>
+          <input type="text" id="ccode" maxlength="20" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Only if your host gives you one" value="${esc(state.classCode || URL_CODE)}"></label>
         <p class="time-note">You have <b>${UI.minutes} minutes</b>. Turn your sound up for creepy music and zombies at the door.</p>
         <div class="go-row"><button class="btn go" id="start">Start escape</button>${soundBtn()}</div>
       </div>
@@ -802,6 +825,8 @@ function renderIntro(){
   $('#start').onclick = () => {
     state.team = $('#team').value.trim();
     if (UI.modes && state.mode === 'solo' && !state.team) { $('#nameerr').textContent = 'Type your name so your time shows on the leaderboard.'; $('#team').focus(); return; }
+    state.classCode = cleanCode($('#ccode').value); state.runId = newRunId(); state.wrongByLock = PUZZLES.map(() => 0);
+    logStart();
     Sound.init(); renderGame(); startTimer();
   };
 }
