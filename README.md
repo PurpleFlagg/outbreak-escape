@@ -119,13 +119,14 @@ Some of that speed comes from knowing the puzzles by the second or third try. So
 - **Replay is great feedback.** Students coming back the next day to play again, and getting faster each time, says the game stuck with them. Keeping it free to replay on a phone, with a leaderboard to chase, made that easy.
 - **Know what your data can and can't say.** A finish-only leaderboard is great for a fun ranking, but it can't tell you how many people started, where they got stuck, or how many students were behind one phone.
 
-## Next steps
+## Updates since the talk
 
 - [x] Rename the editions to **Rookie** (the Tech+ version) and **Technician** (the A+ version), and add a CompTIA trademark notice
 - [x] Shorten the Rookie clock to 10 minutes
-- [ ] Log when a run *starts*, not only when it finishes, so I can see how many players finish
-- [ ] Add an optional session or class code, so results from different talks don't mix on one leaderboard
-- [ ] Record which lock each wrong answer happened on, to see which skills students find hardest
+- [x] Make Rookie hints cost 30 seconds, so players think before they ask (Technician hints still cost a minute)
+- [x] Log when a run *starts*, not only when it finishes, so I can see how many players finish. Start rows carry no name, so they never show on the leaderboard.
+- [x] Add an optional class code, typed on the start screen or built into the QR link (for example `rookie.html?class=FHS2`), plus a Class Leaderboard tab that ranks one class at a time, so results from different talks don't mix
+- [x] Record which lock each wrong answer happened on, to see which skills students find hardest
 
 ## Built with
 
